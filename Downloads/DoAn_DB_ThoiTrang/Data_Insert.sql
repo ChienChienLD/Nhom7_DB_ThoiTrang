@@ -260,18 +260,23 @@ INSERT INTO DIACHI (MaDC, MaKH, TenNguoiNhan, SDTNguoiNhan, TinhThanh, PhuongXa,
 INSERT INTO DIACHI (MaDC, MaKH, TenNguoiNhan, SDTNguoiNhan, TinhThanh, PhuongXa, DiaChiChiTiet) VALUES ('DC04', 'KH06', N'Châu Tường Vy', '0944000004', N'TP. Hồ Chí Minh', N'Bến Nghé', N'100 Đồng Khởi');
 INSERT INTO DIACHI (MaDC, MaKH, TenNguoiNhan, SDTNguoiNhan, TinhThanh, PhuongXa, DiaChiChiTiet) VALUES ('DC05', 'KH02', N'Nguyễn Thị Thu', '0987654321', N'TP. Hồ Chí Minh', N'Phường 14', N'453 Cách Mạng Tháng 8');
 
--- Đã sửa: Chuẩn hóa toàn bộ dữ liệu mẫu sang giao dịch 'OFFLINE' và loại bỏ phí Ship
+-- =======================================================
+-- 6. ĐƠN HÀNG (MÃ TỪ DH01 - DH10)
+-- =======================================================
+
+-- 5 Đơn Offline (Khách mua trực tiếp tại cửa hàng, không có MaDC và PhiShip)
 INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH01', 'KH02', 'NV09', NULL, 'KM01', 'OFFLINE', N'Đã hoàn thành', 700000, 0, N'Tiền mặt', 70);
 INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH02', 'KH01', 'NV10', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 350000, 0, N'Chuyển khoản Momo', 0);
 INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH03', 'KH03', 'NV11', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 560000, 0, N'Tiền mặt', 56);
 INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH04', 'KH01', 'NV12', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 300000, 0, N'Thẻ ngân hàng', 0);
 INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH05', 'KH04', 'NV09', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 1200000, 0, N'Chuyển khoản VNPAY', 120);
-INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH06', 'KH03', 'NV10', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 450000, 0, N'Ví điện tử ZaloPay', 42);
-INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH07', 'KH04', 'NV11', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 600000, 0, N'Tiền mặt', 58);
-INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH08', 'KH05', 'NV12', NULL, NULL, 'OFFLINE', N'Đã hoàn thành', 530000, 0, N'Thẻ quốc tế Visa', 50);
-INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH09', 'KH06', 'NV09', NULL, NULL, 'OFFLINE', N'Đã hủy', 380000, 0, N'Ví điện tử MoMo', 0);
-INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH10', 'KH02', 'NV10', NULL, 'KM02', 'OFFLINE', N'Đã hoàn thành', 850000, 0, N'Chuyển khoản ngân hàng', 85);
 
+-- 5 Đơn Online (Giao hàng tận nơi, có MaDC và PhiShip)
+INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH06', 'KH03', 'NV10', 'DC01', NULL, 'ONLINE', N'Đang giao', 450000, 30000, N'Ví điện tử ZaloPay', 42);
+INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH07', 'KH04', 'NV11', 'DC02', NULL, 'ONLINE', N'Đã giao', 600000, 20000, N'COD (Tiền mặt)', 58);
+INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH08', 'KH05', 'NV12', 'DC03', NULL, 'ONLINE', N'Chờ xác nhận', 530000, 30000, N'Thẻ quốc tế Visa', 50);
+INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH09', 'KH06', 'NV09', 'DC04', NULL, 'ONLINE', N'Đã hủy', 380000, 30000, N'Ví điện tử MoMo', 0);
+INSERT INTO DONHANG (MaDH, MaKH, MaNV, MaDC, MaKM, LoaiDon, TrangThai, TongTien, PhiShip, HinhThucThanhToan, DiemThuong) VALUES ('DH10', 'KH02', 'NV10', 'DC05', 'KM02', 'ONLINE', N'Đang giao', 850000, 0, N'Chuyển khoản ngân hàng', 85);
 -- Đã sửa: Xóa cột tự tính (ThanhTien) khỏi lệnh INSERT
 INSERT INTO CHITIET_DONHANG (MaDH, MaSP, SoLuong, DonGia) VALUES ('DH01', 'SP01', 1, 250000);
 INSERT INTO CHITIET_DONHANG (MaDH, MaSP, SoLuong, DonGia) VALUES ('DH01', 'SP19', 1, 450000);
