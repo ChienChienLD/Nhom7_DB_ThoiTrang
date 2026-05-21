@@ -80,7 +80,6 @@ CREATE TABLE SANPHAM (
     SoLuongTon NUMBER DEFAULT 0 CHECK (SoLuongTon >= 0),
     TrangThai NVARCHAR2(50),
     HINHANH VARCHAR2(255), 
-    CONSTRAINT fk_sp_dm FOREIGN KEY (MaDM) REFERENCES DANHMUC(MaDM),
     CONSTRAINT fk_sp_kho FOREIGN KEY (MaKho) REFERENCES KHOHANG(MaKho),
     CONSTRAINT chk_kichco_thoitrang CHECK (
         UPPER(KichCo) IN ('S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'FREESIZE') 
