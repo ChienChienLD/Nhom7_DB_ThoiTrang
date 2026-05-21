@@ -1,13 +1,12 @@
 -- ==========================================
--- PHẦN 1: TẠO CÁC BẢNG CHA (MỨC 1 - KHÔNG CHỨA KHÓA NGOẠI)
+-- PHẦN 1: TẠO CÁC BẢNG CHA (MỨC 1)
 -- ==========================================
-
 CREATE TABLE TAIKHOAN (
     TenDangNhap VARCHAR2(50) PRIMARY KEY,
     MatKhau VARCHAR2(255) NOT NULL,
     Quyen NVARCHAR2(50) NOT NULL,
     TrangThai NUMBER(1),
-    Email VARCHAR2(100)
+    Email VARCHAR2(100) NOT NULL 
 );
 
 CREATE TABLE DANHMUC (
@@ -24,9 +23,9 @@ CREATE TABLE KHOHANG (
 CREATE TABLE NHACUNGCAP (
     MaNCC VARCHAR2(20) PRIMARY KEY,
     TenNCC NVARCHAR2(150) NOT NULL,
-    DiaChi NVARCHAR2(255) NOT NULL,
-    SDT VARCHAR2(15) NOT NULL,
-    Email VARCHAR2(100)
+    DiaChi NVARCHAR2(255),
+    SDT VARCHAR2(15) NOT NULL,    
+    Email VARCHAR2(100) NOT NULL  
 );
 
 CREATE TABLE KHUYENMAI (
@@ -39,35 +38,36 @@ CREATE TABLE KHUYENMAI (
     NgayKetThuc DATE,
     SoLuotDung INTEGER DEFAULT 0,         
     TrangThai NVARCHAR2(50),               
-    CONSTRAINT chk_phantram CHECK (PhanTramGiam > 0 AND PhanTramGiam <= 100)
+    CONSTRAINT chk_phantram CHECK (PhanTramGiam > 0 AND PhanTramGiam <= 100),
+    CONSTRAINT chk_ngay_khuyenmai CHECK (NgayKetThuc >= NgayBatDau)
 );
 
 -- ==========================================
--- PHẦN 2: TẠO CÁC BẢNG MỨC 2 (CON CỦA MỨC 1)
+-- PHẦN 2: TẠO CÁC BẢNG MỨC 2
 -- ==========================================
-
 CREATE TABLE NHANVIEN (
     MaNV VARCHAR2(20) PRIMARY KEY,
     TenNV NVARCHAR2(100) NOT NULL,
-    NgaySinh DATE,
+    NgaySinh DATE NOT NULL,
     GioiTinh NVARCHAR2(10),
-    SDT VARCHAR2(15) UNIQUE NOT NULL,
+    SDT VARCHAR2(15) UNIQUE NOT NULL, 
     DiaChi NVARCHAR2(255),
     ChucVu NVARCHAR2(50),
-    NgayVaoLam DATE,
+    NgayVaoLam DATE NOT NULL,
     TrangThai NUMBER(1),
     TenDangNhap VARCHAR2(50),
-    CONSTRAINT fk_nv_tk FOREIGN KEY (TenDangNhap) REFERENCES TAIKHOAN(TenDangNhap)
+    CONSTRAINT fk_nv_tk FOREIGN KEY (TenDangNhap) REFERENCES TAIKHOAN(TenDangNhap) ON DELETE SET NULL,
+    CONSTRAINT chk_nv_thoigian CHECK (NgayVaoLam > NgaySinh)
 );
 
 CREATE TABLE KHACHHANG (
     MaKH VARCHAR2(20) PRIMARY KEY,
     TenKH NVARCHAR2(100) NOT NULL,
-    SDT VARCHAR2(15) UNIQUE NOT NULL,
+    SDT VARCHAR2(15) UNIQUE NOT NULL, 
     DiemTichLuy INTEGER DEFAULT 0,
-    Email VARCHAR2(100),
+    Email VARCHAR2(100) ,     
     TenDangNhap VARCHAR2(50),
-    CONSTRAINT fk_kh_tk FOREIGN KEY (TenDangNhap) REFERENCES TAIKHOAN(TenDangNhap)
+    CONSTRAINT fk_kh_tk FOREIGN KEY (TenDangNhap) REFERENCES TAIKHOAN(TenDangNhap) ON DELETE SET NULL
 );
 
 CREATE TABLE SANPHAM (
@@ -75,25 +75,30 @@ CREATE TABLE SANPHAM (
     MaKho VARCHAR2(20) NOT NULL,
     TenSP NVARCHAR2(200) NOT NULL,
     MauSac NVARCHAR2(50),
-    KichCo VARCHAR2(10),
+    KichCo VARCHAR2(10) NOT NULL,
     GiaBan NUMBER(18, 2) NOT NULL CHECK (GiaBan >= 0),
     SoLuongTon NUMBER DEFAULT 0 CHECK (SoLuongTon >= 0),
     TrangThai NVARCHAR2(50),
     HINHANH VARCHAR2(255), 
-    CONSTRAINT fk_sp_kho FOREIGN KEY (MaKho) REFERENCES KHOHANG(MaKho)
+    CONSTRAINT fk_sp_dm FOREIGN KEY (MaDM) REFERENCES DANHMUC(MaDM),
+    CONSTRAINT fk_sp_kho FOREIGN KEY (MaKho) REFERENCES KHOHANG(MaKho),
+    CONSTRAINT chk_kichco_thoitrang CHECK (
+        UPPER(KichCo) IN ('S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'FREESIZE') 
+        OR 
+        REGEXP_LIKE(KichCo, '^(2[6-9]|3[0-9]|4[0-5])$')
+    )
 );
 
 -- ==========================================
--- PHẦN 3: TẠO CÁC BẢNG MỨC 3 (GIAO DỊCH & VẬN HÀNH)
+-- PHẦN 3: TẠO CÁC BẢNG MỨC 3
 -- ==========================================
-
 CREATE TABLE DIACHI (
     MaDC VARCHAR2(20) PRIMARY KEY,
     MaKH VARCHAR2(20) NOT NULL,
-    TenNguoiNhan NVARCHAR2(100),
-    SDTNguoiNhan VARCHAR2(15) NOT NULL,
-    TinhThanh NVARCHAR2(100),
-    PhuongXa NVARCHAR2(100),
+    TenNguoiNhan NVARCHAR2(100) NOT NULL,
+    SDTNguoiNhan VARCHAR2(15) NOT NULL, -- Sửa đổi: Bắt buộc nhập SDT người nhận hàng
+    TinhThanh NVARCHAR2(100) NOT NULL,
+    PhuongXa NVARCHAR2(100) NOT NULL,
     DiaChiChiTiet NVARCHAR2(255),
     CONSTRAINT fk_dc_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH) ON DELETE CASCADE
 );
@@ -124,18 +129,21 @@ CREATE TABLE DONHANG (
     MaKM VARCHAR2(20),
     LoaiDon NVARCHAR2(20) DEFAULT 'OFFLINE' CHECK (LoaiDon IN ('ONLINE', 'OFFLINE')),
     NgayDat DATE DEFAULT SYSDATE,
-    NgayGiaoDuKien DATE,              
+    NgayGiaoDuKien DATE DEFAULT SYSDATE + 5,              
     TrangThai NVARCHAR2(50),          
-    TongTien NUMBER(18, 2) DEFAULT 0,
-    PhiShip NUMBER(18, 2) DEFAULT 0,  
+    TongTien NUMBER(18, 2) DEFAULT 0 CHECK (TongTien >= 0),
+    PhiShip NUMBER(18, 2) DEFAULT 0 CHECK (PhiShip >= 0),   
     HinhThucThanhToan NVARCHAR2(50),  
-    DiemThuong NUMBER DEFAULT 0,
-    DiemSuDung NUMBER DEFAULT 0,
+    DiemThuong NUMBER DEFAULT 0 CHECK (DiemThuong >= 0),   
+    DiemSuDung NUMBER DEFAULT 0 CHECK (DiemSuDung >= 0),   
     GhiChu NVARCHAR2(255),
     CONSTRAINT fk_dh_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
     CONSTRAINT fk_dh_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV),
     CONSTRAINT fk_dh_dc FOREIGN KEY (MaDC) REFERENCES DIACHI(MaDC),
-    CONSTRAINT fk_dh_km FOREIGN KEY (MaKM) REFERENCES KHUYENMAI(MaKM)
+    CONSTRAINT fk_dh_km FOREIGN KEY (MaKM) REFERENCES KHUYENMAI(MaKM),
+    CONSTRAINT chk_dh_diachi_online CHECK (
+        (LoaiDon = 'ONLINE' AND MaDC IS NOT NULL) OR (LoaiDon = 'OFFLINE')
+    )
 );
 
 CREATE TABLE DANHGIA (
@@ -166,8 +174,8 @@ CREATE TABLE CHITIET_PHIEUNHAP (
     MaPN VARCHAR2(20) NOT NULL,
     MaSP VARCHAR2(20) NOT NULL,
     SoLuong NUMBER NOT NULL CHECK (SoLuong > 0),
-    DonGiaNhap NUMBER(18, 2) DEFAULT 0 NOT NULL CHECK (DonGiaNhap >= 0),
-    ThanhTien NUMBER DEFAULT 0 NOT NULL CHECK (ThanhTien >= 0),
+    DonGiaNhap NUMBER(18, 2) NOT NULL,
+    ThanhTien AS (SoLuong * DonGiaNhap), -- Cột tự động tính toán
     PRIMARY KEY (MaPN, MaSP),
     CONSTRAINT fk_ctpn_pn FOREIGN KEY (MaPN) REFERENCES PHIEUNHAP(MaPN) ON DELETE CASCADE,
     CONSTRAINT fk_ctpn_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
@@ -177,8 +185,8 @@ CREATE TABLE CHITIET_DONHANG (
     MaDH VARCHAR2(20) NOT NULL,
     MaSP VARCHAR2(20) NOT NULL,
     SoLuong NUMBER NOT NULL CHECK (SoLuong > 0),
-    DonGia NUMBER(18, 2) NOT NULL,
-    ThanhTien NUMBER,
+    DonGia NUMBER(18, 2) NOT NULL CHECK (DonGia > 0),
+    ThanhTien AS (SoLuong * DonGia), -- Cột tự động tính toán
     PRIMARY KEY (MaDH, MaSP),
     CONSTRAINT fk_ctdh_dh FOREIGN KEY (MaDH) REFERENCES DONHANG(MaDH) ON DELETE CASCADE,
     CONSTRAINT fk_ctdh_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
